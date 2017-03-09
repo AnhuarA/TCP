@@ -37,10 +37,10 @@ int main(int argc, char *argv[])
             scanf("%s", hostInput);
             ipVal = inet_pton(AF_INET, hostInput,& ip);//host ip validation
         }
-        if(clientPort > 65535 || clientPort < 0){
-        while(clientPort > 65535 || clientPort < 0)
+        if(clientPort > 65535 || clientPort < 1024){
+        while(clientPort > 65535 || clientPort < 1024)
         {
-           printf("Client port exceeds 16-bit range\nTry again\n");
+           printf("Client port exceeds 16-bit range or is lower than 1024\nTry again\n");
            scanf("%d", &clientPort);
         }
         }

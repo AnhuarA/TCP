@@ -76,9 +76,9 @@ int main(int argc, char *argv[])
             while (1)
             {
               printf(" SEND (q or Q to quit) : ");
-			  fgets(send_data, sizeof(send_data), stdin);
+			           fgets(send_data, sizeof(send_data), stdin);
 
-              if (strcmp(send_data , "q") == 0 || strcmp(send_data , "Q") == 0)
+              if (strcmp(send_data , "q\n") == 0 || strcmp(send_data , "Q\n") == 0)
               {
                 sprintf(quit, "QUITTING ON USER REQUEST\n");
                 printf("QUITTING ON USER REQUEST\n");
@@ -94,8 +94,9 @@ int main(int argc, char *argv[])
 
               recv_data[bytes_recieved] = '\0';
 
-              if (strcmp(recv_data , "q") == 0 || strcmp(recv_data , "Q") == 0)
+              if (strcmp(recv_data , "q\n") == 0 || strcmp(recv_data , "Q\n") == 0)
               {
+                printf("Exiting on client request\n");
                 close(connected);
                 break;
               }
