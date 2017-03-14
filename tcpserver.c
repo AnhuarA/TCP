@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
         }
 
         server_addr.sin_family = AF_INET;
-        server_addr.sin_port = htons(0);
+        server_addr.sin_port = htons(serverPort);
         server_addr.sin_addr.s_addr = INADDR_ANY;
         bzero(&(server_addr.sin_zero),8);
 
@@ -67,7 +67,6 @@ int main(int argc, char *argv[])
         {
 
             sin_size = sizeof(struct sockaddr_in);
-
             connected = accept(sock, (struct sockaddr *)&client_addr,&sin_size);
 
             printf("I got a connection from (%s , %d)",
@@ -76,15 +75,17 @@ int main(int argc, char *argv[])
             while (1)
             {
               printf(" SEND (q or Q to quit) : ");
-			           fgets(send_data, sizeof(send_data), stdin);
+			        fgets(send_data, sizeof(send_data), stdin);
 
               if (strcmp(send_data , "q\n") == 0 || strcmp(send_data , "Q\n") == 0)
               {
+                printf ("Exiting on client request\n");
                 sprintf(quit, "QUITTING ON USER REQUEST\n");
                 printf("QUITTING ON USER REQUEST\n");
                 send(connected, quit,strlen(quit), 0);
                 close(connected);
-                break;
+                close(sock);
+                return 0;
               }
 
               else
@@ -94,10 +95,11 @@ int main(int argc, char *argv[])
 
               recv_data[bytes_recieved] = '\0';
 
-              if (strcmp(recv_data , "q\n") == 0 || strcmp(recv_data , "Q\n") == 0)
+              if (strcmp(recv_data, "QUITTING ON USER REQUEST\n\n") ==0 || strcmp (recv_data, "QUITTING ON USER REQUEST\n") == 0)
               {
                 printf("Exiting on client request\n");
                 close(connected);
+                lose (sock);
                 break;
               }
 

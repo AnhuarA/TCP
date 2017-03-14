@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
         unsigned long ip;
         struct hostent *host;
         struct sockaddr_in server_addr;
-        char quit[20]; //check that correct number of arguments are given
+        char *quit = "QUITTING ON USER REQUEST\n"; //check that correct number of arguments are given
 
         if(argc != 3){
          fprintf(stderr,"Incorrect number of arguments\nUsage: %s [host] [client]\n", argv[0]);
@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
         }
         hostInput = argv[1];
         clientPort = atoi(argv[2]);
+
         ipVal = inet_pton(AF_INET, hostInput,& ip);//host ip validation
         while(ipVal != 1){
             printf("%s is an invalid IPv4 address.\nTry again.\n",hostInput);
@@ -71,23 +72,31 @@ int main(int argc, char *argv[])
         }
 
         while(1){
-            printf("Type some data to send (q or Q to quit):");
-            fgets(send_data, sizeof(send_data), stdin); //Gets data from user input and stores it in send_data
+         bytes_recieved=recv(sock,recv_data,1024,0);
+         recv_data[bytes_recieved] = '\0';
+        //if the client receives a "q" or "Q" close
+        if (strcmp(recv_data , "QUITTING ON USER REQUEST\n\n") == 0 ||
+        strcmp(recv_data , "QUITTING ON USER REQUEST\n") == 0)
+                {
+                        printf("QUITTING ON SERVER REQUEST\n");
+                        close(sock);
+                        break;
+                }
+        //Prints out received data, asks to send data
+        else
+        printf("Recieved data = %s " , recv_data);
 
+        printf("SEND (q or Q to quit) : ");
+        fgets(send_data, sizeof(send_data), stdin);
 
-            if ((strcmp(send_data , "q\n") == 0) || strcmp(send_data , "Q\n") == 0){//Checks that quit command has not been inputted
-                sprintf(quit, "QUITTING ON USER REQUEST\n");
-                printf("QUITTING ON USER REQUEST\n");
-                sendto(sock, quit, strlen(quit), 0,
-                              (struct sockaddr *)&server_addr, sizeof(struct
-                                     sockaddr));
+        if (strcmp(send_data , "q\n") != 0 && strcmp(send_data , "Q\n") != 0)
+                send(sock,send_data,strlen(send_data), 0);
+        else
+           {
+                send(sock,quit,strlen(quit), 0);
                 close(sock);
-                return 0;
-            }
-            else{
-               sendto(sock, send_data, strlen(send_data), 0,
-                   (struct sockaddr *)&server_addr, sizeof(struct sockaddr));
-             }
-            }
+                break;
+           }
+        }
 return 0;
 }
